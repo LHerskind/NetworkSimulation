@@ -1,16 +1,18 @@
-package Beam;
-
+import Dandelion.DandelionNode;
+import Dandelion.Network;
 import utils.KnowledgeUtil;
 
 import java.util.ArrayList;
 
-public class BeamMain {
+public class Main {
 
 
     public static void main(String[] args) {
         long startTime = System.currentTimeMillis();
 
-        Network network = new Network(128, 8, 6000, 10);
+        String nodeType = "Beam";
+
+        Network network = new Network(64, 8, 6000, 10, nodeType);
 
         network.startNodes();
         network.waitForRun();
@@ -21,17 +23,12 @@ public class BeamMain {
 
         network.printStats();
 
-        ArrayList<BeamNode> observerNodes = new ArrayList<>();
+        ArrayList<DandelionNode> observerNodes = new ArrayList<>();
         observerNodes.add(network.getNode(0));
         observerNodes.add(network.getNode(1));
         observerNodes.add(network.getNode(2));
 
-        for(BeamNode node : observerNodes){
-            // node.printKnowledge();
-        }
-
-        KnowledgeUtil.analysis(observerNodes);
-
+        KnowledgeUtil.analysis(observerNodes, false, true);
 
     }
 

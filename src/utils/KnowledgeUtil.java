@@ -76,25 +76,34 @@ public class KnowledgeUtil {
             Collection<Transaction> toReduceCollection = toReduce.values();
             Collection<Transaction> knowledgeCollection = knowledge.values();
 
-            for(Iterator<Transaction> iterator = toReduceCollection.iterator(); iterator.hasNext();){
-                Transaction tx_reduce = iterator.next();
-                if(tx_reduce.isConclusive()){
-                    iterator.remove();
+            ArrayList<Transaction> toRemove = new ArrayList<>();
+            ArrayList<Transaction> toAdd = new ArrayList<>();
+
+            for (Transaction tx_reduce : toReduceCollection) {
+                if (tx_reduce.isConclusive()) {
                     knowledge.putIfAbsent(tx_reduce.hashCode(), tx_reduce);
+                    toRemove.add(tx_reduce);
                 } else {
-                    for(Transaction tx_knowledge : knowledgeCollection){
-                        if(isOverlapping(tx_reduce, tx_knowledge)){// We have overlap, let us do an actual reduction.
+                    for (Transaction tx_knowledge : knowledgeCollection) {
+                        if (isOverlapping(tx_reduce, tx_knowledge)) {// Let us find the first with overlap, and then do something about it
                             Transaction reduced = tx_reduce.reduce(tx_knowledge);
-                            iterator.remove();
-                            if(reduced.isConclusive()){
+                            if (reduced.isConclusive()) {
                                 knowledge.putIfAbsent(reduced.hashCode(), reduced);
                                 go_another_run = true;
-                            } else if(!reduced.isEmpty()) {
-                                toReduce.putIfAbsent(reduced.hashCode(), reduced);
+                            } else if (!reduced.isEmpty()) {
+                                toAdd.add(reduced);
                             }
+                            toRemove.add(tx_reduce);
+                            break;
                         }
                     }
                 }
+            }
+            for(Transaction tx : toRemove){
+                toReduce.remove(tx.hashCode());
+            }
+            for(Transaction tx : toAdd){
+                toReduce.putIfAbsent(tx.hashCode(), tx);
             }
         }
     }
@@ -104,22 +113,33 @@ public class KnowledgeUtil {
         // TODO: Needs to be verified that this actually works and will not crash due to removal.
         Collection<Transaction> toReduceCollection = toReduce.values();
 
+        ArrayList<Transaction> toAdd = new ArrayList<>();
+
         for(Iterator<Transaction> iterator = toReduceCollection.iterator(); iterator.hasNext();){
             Transaction tx_reduce = iterator.next();
-            for(Iterator<Transaction> inner_iterator = toReduceCollection.iterator(); inner_iterator.hasNext();){
-                Transaction tx_reduce_inner = inner_iterator.next();
-                if(tx_reduce.equals(tx_reduce_inner)){ continue; }
-                if(isOverlapping(tx_reduce, tx_reduce_inner)){
+            for (Transaction tx_reduce_inner : toReduceCollection) {
+                if (tx_reduce.equals(tx_reduce_inner)) {
+                    continue;
+                }
+                if (isOverlapping(tx_reduce, tx_reduce_inner)) {
                     // TODO: Think about this, it is necessary to do add and then reduce?
                     // Transaction tx = (tx_reduce.add(tx_reduce_inner)).reduce(tx_reduce_inner);
                     Transaction tx = tx_reduce.reduce(tx_reduce_inner);
-                    if(tx.isConclusive()){
+                    if (tx.isConclusive()) {
                         knowledge.putIfAbsent(tx.hashCode(), tx);
-                        iterator.remove();
+                    } else if (!tx.isEmpty()) {
+                        toAdd.add(tx);
                     }
+                    iterator.remove();
+                    break;
                 }
             }
         }
+
+        for(Transaction tx : toAdd){
+            toReduce.putIfAbsent(tx.hashCode(), tx);
+        }
+
     }
 
     private static void extendKnowledgeWithReceived(HashMap<Integer, Transaction> toReduce, HashMap<Integer, Transaction> knowledge){
@@ -144,15 +164,17 @@ public class KnowledgeUtil {
         System.out.println("Unable to deduce: " + unReduceable.size() + " inputs");
 
         int i = 0;
-        while(i < values.size()){
+        int j = 0;
+        while(j < values.size()){
             if(values.containsKey(i)){
                 System.out.println(values.get(i) + " transactions of size: " + i);
+                j++;
             }
             i++;
         }
     }
 
-    public static void analysis(ArrayList<DandelionNode> nodes){
+    public static void analysis(ArrayList<DandelionNode> nodes, boolean printFinalKnowledge, boolean printFinalToReduce){
         HashMap<Integer, Transaction> toReduce = KnowledgeUtil.getReceivedMessages(nodes);
         HashSet<String> groundTruth =  groundTruth(toReduce);
         HashMap<Integer, Transaction> knowledge = getInitialKnowledge(nodes);
@@ -160,14 +182,30 @@ public class KnowledgeUtil {
         System.out.println("Pre-analysis: toReduce size: " + toReduce.size() + ", knowledge size:" + knowledge.size() + ", the ground truth is size: " + groundTruth.size());
         statistics(toReduce);
 
+        for(int i = 0 ; i < 3; i++){
+            reduceWithKnowledge(toReduce, knowledge);
+            reduceWithoutKnowledge(toReduce, knowledge);
+        }
         reduceWithKnowledge(toReduce, knowledge);
-        reduceWithoutKnowledge(toReduce, knowledge);
-        reduceWithKnowledge(toReduce, knowledge);
+
         System.out.println("Post-analysis: toReduce size: " + toReduce.size() + ", knowledge size:" + knowledge.size() + ", the ground truth is size: " + groundTruth.size());
         statistics(toReduce);
+
+        if(printFinalKnowledge){
+            System.out.println("Printing full knowledge");
+            for(Transaction tx : knowledge.values()){
+                System.out.println(tx);
+            }
+            System.out.println("End of full knowledge");
+        }
+
+        if(printFinalToReduce){
+            System.out.println("Printing toReduce");
+            for(Transaction tx : toReduce.values()){
+                System.out.println(tx);
+            }
+            System.out.println("End of toReduce");
+        }
     }
-
-
-
 
 }

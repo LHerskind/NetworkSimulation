@@ -12,7 +12,7 @@ public class Transaction {
     private String fee = "";
     private int hash = 0;
 
-    Transaction(String val, boolean empty, boolean have_fee){
+    public Transaction(String val, boolean empty, boolean have_fee){
         if (!empty){
             this.inputs.add("I_"+val);
             this.outputs.add("O_"+val);
@@ -23,7 +23,7 @@ public class Transaction {
         }
     }
 
-    private Transaction(){
+    public Transaction(){
 
     }
 

@@ -1,5 +1,8 @@
 package Dandelion;
 
+import Beam.BeamNode;
+import Plain.PlainNode;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -8,12 +11,12 @@ public class Network {
     private int numberOfNodes, numberOfConnections, numberOfRounds, sleepBetweenRounds;
     private ArrayList<DandelionNode> nodes = new ArrayList<DandelionNode>();
 
-    public Network(int numberOfNodes, int numberOfConnections, int numberOfRounds, int sleepBetweenRounds){
+    public Network(int numberOfNodes, int numberOfConnections, int numberOfRounds, int sleepBetweenRounds, String type){
         this.numberOfConnections = numberOfConnections;
         this.numberOfNodes = numberOfNodes;
         this.numberOfRounds = numberOfRounds;
         this.sleepBetweenRounds = sleepBetweenRounds;
-        createNodes();
+        createNodes(type);
         makeConnections();
     }
 
@@ -25,11 +28,17 @@ public class Network {
         return this.nodes;
     }
 
-    private void createNodes(){
+    private void createNodes(String type){
         for(int i = 0; i < this.numberOfNodes; i++){
-            DandelionNode n = new DandelionNode("Node" + i, i);
-            n.init(this.numberOfRounds, this.sleepBetweenRounds);
-            nodes.add(n);
+            if(type.equals("Plain")){
+                PlainNode n = new PlainNode("Node" + i, i);
+                n.init(this.numberOfRounds, this.sleepBetweenRounds);
+                nodes.add(n);
+            } else if(type.equals("Beam")){
+                BeamNode n = new BeamNode("Node" + i, i);
+                n.init(this.numberOfRounds, this.sleepBetweenRounds);
+                nodes.add(n);
+            }
         }
     }
 

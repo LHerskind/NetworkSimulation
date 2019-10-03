@@ -8,7 +8,7 @@ public class Message {
 
     private int hash = 0;
 
-    Message(DandelionNode sender, Transaction message, boolean stem) {
+    public Message(DandelionNode sender, Transaction message, boolean stem) {
         this.sender = sender;
         this.message = message;
         this.stem = stem;

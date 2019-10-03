@@ -6,29 +6,29 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class DandelionNode extends Thread{
+public abstract class DandelionNode extends Thread{
 
-    private String name;
-    private int id;
+    protected String name;
+    protected int id;
 
-    private ArrayList<DandelionNode> peers = new ArrayList<DandelionNode>();
-    private HashMap<Integer, Message> delivered_to_me_messages_map = new HashMap<Integer, Message>();
-    private HashMap<Integer, Message> message_created = new HashMap<Integer, Message>();
+    protected ArrayList<DandelionNode> peers = new ArrayList<DandelionNode>();
+    protected HashMap<Integer, Message> delivered_to_me_messages_map = new HashMap<Integer, Message>();
+    protected HashMap<Integer, Message> message_created = new HashMap<Integer, Message>();
 
-    private ConcurrentLinkedQueue<Message> mQueue = new ConcurrentLinkedQueue<>();
-    private List<Message> messages_to_send = new ArrayList<Message>();
+    protected ConcurrentLinkedQueue<Message> mQueue = new ConcurrentLinkedQueue<>();
+    protected List<Message> messages_to_send = new ArrayList<Message>();
 
-    private DandelionNode stem_node = null;
-    private boolean is_stem = false;
+    protected DandelionNode stem_node = null;
+    protected boolean is_stem = false;
 
-    private long epoch_start = 0;
-    private long epoch_length = 2000;
+    protected long epoch_start = 0;
+    protected long epoch_length = 10000;
 
-    private int message_counter = 0;
+    protected int message_counter = 0;
 
-    private int number_of_rounds = 0;
-    private int sleep_between_rounds = 0;
-    private double generate_probability = 0;
+    protected int number_of_rounds = 0;
+    protected int sleep_between_rounds = 0;
+    protected double generate_probability = 0;
 
     public DandelionNode(String name, int id){
         this.name = name;
@@ -47,7 +47,7 @@ public class DandelionNode extends Thread{
         this.message_created.putIfAbsent(msg.hashCode(), msg);
     }
 
-    private void nextEpoch(){
+    protected void nextEpoch(){
         long elapsed_time = System.currentTimeMillis() - this.epoch_start;
         if (epoch_start == 0 || elapsed_time > this.epoch_length){
             epoch_start = System.currentTimeMillis();
@@ -69,11 +69,11 @@ public class DandelionNode extends Thread{
         return this.id;
     }
 
-    private void addMessageToSend(Message message){
+    protected void addMessageToSend(Message message){
         this.messages_to_send.add(message);
     }
 
-    private void deliver_message(Message message){
+    public void deliver_message(Message message){
         this.mQueue.add(message);
     }
 
@@ -97,7 +97,7 @@ public class DandelionNode extends Thread{
         delivered_to_me_messages_map.putIfAbsent(message.hashCode(), message);
     }
 
-    private void unicast(Message message, DandelionNode peer){
+    protected void unicast(Message message, DandelionNode peer){
         Message to_send = new Message(this, message.getMessage(), true);
         peer.deliver_message(to_send);
         delivered_to_me_messages_map.putIfAbsent(to_send.hashCode(), to_send);
