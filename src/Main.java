@@ -10,7 +10,7 @@ public class Main {
     public static void main(String[] args) {
         long startTime = System.currentTimeMillis();
 
-        String nodeType = "Beam";
+        String nodeType = "Grin";
 
         Network network = new Network(64, 8, 6000, 10, nodeType);
 
@@ -28,8 +28,7 @@ public class Main {
         observerNodes.add(network.getNode(1));
         observerNodes.add(network.getNode(2));
 
-        KnowledgeUtil.analysis(observerNodes, false, true);
-
+        KnowledgeUtil.analysis(observerNodes, false, false);
     }
 
 }

@@ -58,7 +58,4 @@ public class BeamNode extends DandelionNode {
             lastStem = System.currentTimeMillis();
         }
     }
-
-
-
 }

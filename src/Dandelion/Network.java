@@ -1,6 +1,7 @@
 package Dandelion;
 
 import Beam.BeamNode;
+import Grin.GrinNode;
 import Plain.PlainNode;
 
 import java.util.ArrayList;
@@ -36,6 +37,10 @@ public class Network {
                 nodes.add(n);
             } else if(type.equals("Beam")){
                 BeamNode n = new BeamNode("Node" + i, i);
+                n.init(this.numberOfRounds, this.sleepBetweenRounds);
+                nodes.add(n);
+            } else if(type.equals("Grin")){
+                GrinNode n = new GrinNode("Node" + i, i);
                 n.init(this.numberOfRounds, this.sleepBetweenRounds);
                 nodes.add(n);
             }

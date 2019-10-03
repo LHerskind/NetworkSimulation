@@ -14,16 +14,16 @@ public class Message {
         this.stem = stem;
     }
 
-    Message copy(){
+    public Message copy(){
         return new Message(sender, message, stem);
     }
 
-    void setSender(DandelionNode sender){
+    public void setSender(DandelionNode sender){
         this.sender = sender;
         this.hash = 0;
     }
 
-    void setStem(boolean stem){
+    public void setStem(boolean stem){
         this.stem = stem;
         this.hash = 0;
     }

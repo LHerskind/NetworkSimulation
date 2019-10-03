@@ -85,7 +85,7 @@ public abstract class DandelionNode extends Thread{
         return this.peers;
     }
 
-    private void broadcast(Message message){
+    protected void broadcast(Message message){
         Message to_send = message.copy();
         to_send.setSender(this);
         to_send.setStem(false);
