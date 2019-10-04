@@ -9,9 +9,10 @@ import java.util.Random;
 
 public class BeamNode extends DandelionNode {
 
-    long lastStem = 0;
-    long stemWait = 2000;
-    HashSet<Transaction> stemPool = new HashSet<>();
+    protected long lastStem = 0;
+    protected long stemWait = 2000;
+    long stemForce = 2500;
+    protected HashSet<Transaction> stemPool = new HashSet<>();
 
     public BeamNode(String name, int id) {
         super(name, id);
@@ -46,6 +47,7 @@ public class BeamNode extends DandelionNode {
     @Override
     protected void unicast(Message message, DandelionNode peer){
         stemPool.add(message.getMessage());
+        delivered_to_me_messages_map.putIfAbsent(message.hashCode(), message);
         if(lastStem + stemWait <= System.currentTimeMillis()){
             Transaction tx = new Transaction();
             for(Transaction stemTx : stemPool){
@@ -58,4 +60,12 @@ public class BeamNode extends DandelionNode {
             lastStem = System.currentTimeMillis();
         }
     }
+
+    @Override
+    protected void handleHiccups(){
+        if(lastStem + stemForce <= System.currentTimeMillis()){
+            endingStem();
+        }
+    }
+
 }

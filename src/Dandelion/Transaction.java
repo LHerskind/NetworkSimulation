@@ -27,6 +27,18 @@ public class Transaction {
 
     }
 
+    public boolean hasFee(){
+        return !this.fee.isEmpty();
+    }
+
+    public String getFee(){
+        return this.fee;
+    }
+
+    public void addFeeInput(String fee){
+        this.inputs.add(fee);
+    }
+
     public HashSet<String> getInputs(){
         return this.inputs;
     }

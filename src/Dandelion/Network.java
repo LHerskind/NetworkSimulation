@@ -1,11 +1,15 @@
 package Dandelion;
 
 import Beam.BeamNode;
+import BeamMine.MyBeamNode;
 import Grin.GrinNode;
+import GrinMine.MyGrinNode;
 import Plain.PlainNode;
 
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.atomic.LongAdder;
+
+import static java.util.Map.*;
 
 public class Network {
 
@@ -39,8 +43,16 @@ public class Network {
                 BeamNode n = new BeamNode("Node" + i, i);
                 n.init(this.numberOfRounds, this.sleepBetweenRounds);
                 nodes.add(n);
+            } else if(type.equals("MyBeam")){
+                MyBeamNode n = new MyBeamNode("Node" + i, i);
+                n.init(this.numberOfRounds, this.sleepBetweenRounds);
+                nodes.add(n);
             } else if(type.equals("Grin")){
                 GrinNode n = new GrinNode("Node" + i, i);
+                n.init(this.numberOfRounds, this.sleepBetweenRounds);
+                nodes.add(n);
+            } else if(type.equals("MyGrin")){
+                MyGrinNode n = new MyGrinNode("Node" + i, i);
                 n.init(this.numberOfRounds, this.sleepBetweenRounds);
                 nodes.add(n);
             }
@@ -76,6 +88,31 @@ public class Network {
         }
     }
 
+    public ArrayList<DandelionNode> getSortedNodes(){
+        HashMap<Integer, LongAdder> values = new HashMap<>();
+        ArrayList<DandelionNode> sortedNodes = new ArrayList<>();
+
+        for(DandelionNode node : nodes){
+            for(DandelionNode peer : node.getPeers()) {
+                values.computeIfAbsent(peer.getNodeId(), key -> new LongAdder()).increment();
+            }
+        }
+
+        List<Entry<Integer, LongAdder>> entries = new ArrayList<>(values.entrySet());
+        entries.sort(Comparator.comparingInt(o -> o.getValue().intValue()));
+
+        for(Entry<Integer, LongAdder> e : entries){
+            sortedNodes.add(nodes.get(e.getKey()));
+        }
+        return sortedNodes;
+    }
+
+    public ArrayList<DandelionNode> getRandomizedNodes(){
+        ArrayList<DandelionNode> randomizedNodes = new ArrayList<>(nodes);
+        Collections.shuffle(randomizedNodes);
+        return randomizedNodes;
+    }
+
     public void printStats(){
         int tot = 0;
         int min = Integer.MAX_VALUE;
@@ -100,7 +137,8 @@ public class Network {
             }
         }
 
-        System.out.println("Minimum number of messages received: " + min + " : " + tot / nodes.size() + " : " + max);
+        System.out.println("--- Network stats (" + nodes.size() + ", " + numberOfConnections + ")");
+        System.out.println("The minimum number of messages received: " + min + ", average: " + tot / nodes.size() + ", and max: " + max);
         System.out.println(connection_count + " is connected to the worst: " + n);
     }
 

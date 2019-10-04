@@ -43,7 +43,7 @@ public abstract class DandelionNode extends Thread{
         return this.message_created;
     }
 
-    private void addMessageCreated(Message msg){
+    protected void addMessageCreated(Message msg){
         this.message_created.putIfAbsent(msg.hashCode(), msg);
     }
 
@@ -103,7 +103,7 @@ public abstract class DandelionNode extends Thread{
         delivered_to_me_messages_map.putIfAbsent(to_send.hashCode(), to_send);
     }
 
-    private void  receiver(){
+    protected void  receiver(){
         if(this.mQueue.isEmpty()){ // No received messages
             return;
         }
@@ -138,7 +138,7 @@ public abstract class DandelionNode extends Thread{
         }
     }
 
-    private void generateMessage(){
+    protected void generateMessage(){
         if(Math.random() < this.generate_probability){
             String tx_id = this.id + "_" + this.message_counter++;
             Transaction tx = new Transaction(tx_id, false, false);
@@ -151,6 +151,10 @@ public abstract class DandelionNode extends Thread{
         this.number_of_rounds = number_of_rounds;
         this.sleep_between_rounds = sleep_between_rounds;
         this.generate_probability = 1.0 / (60000.0 / this.sleep_between_rounds);
+    }
+
+    protected void handleHiccups(){
+        // To take care of forcemerge for Grin and Beam nodes.
     }
 
     public void run(){
@@ -173,6 +177,9 @@ public abstract class DandelionNode extends Thread{
                 if (!mQueue.isEmpty()){
                     receiver();
                 }
+
+                handleHiccups();
+
                 i++;
                 Thread.sleep(this.sleep_between_rounds);
             }
