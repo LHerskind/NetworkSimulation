@@ -72,12 +72,15 @@ public class Transaction {
 
     public Transaction reduce(Transaction other){
         Transaction temp = this.copy();
-        for (String input : other.inputs){
+        temp.inputs.removeAll(other.inputs);
+        temp.outputs.removeAll(other.outputs);
+
+/*        for (String input : other.inputs){
             temp.inputs.remove(input);
         }
         for (String output : other.outputs){
             temp.outputs.remove(output);
-        }
+        }*/
         return temp;
     }
 
@@ -115,7 +118,6 @@ public class Transaction {
 
         if(o instanceof Transaction){
             Transaction other = (Transaction) o;
-
             return other.hashCode() == this.hashCode();
         } else {
             return false;
