@@ -150,7 +150,8 @@ public abstract class DandelionNode extends Thread{
     public void init(int number_of_rounds, int sleep_between_rounds){
         this.number_of_rounds = number_of_rounds;
         this.sleep_between_rounds = sleep_between_rounds;
-        this.generate_probability = 1.0 / (60000.0 / this.sleep_between_rounds);
+        // TODO: We changed this!
+        this.generate_probability = 1.0 / (10*60000.0 / this.sleep_between_rounds);
     }
 
     protected void handleHiccups(){

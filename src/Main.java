@@ -12,7 +12,7 @@ public class Main {
     public static void main(String[] args) {
         String[] nodeTypes = {"Grin", "MyGrin", "Beam", "MyBeam"}; //
         for(String nodeType : nodeTypes) {
-            int time_in_seconds = 600;
+            int time_in_seconds = 300;
 
             int numberOfRounds = time_in_seconds * 100;
             Network network = new Network(512, 8, numberOfRounds, 10, nodeType);
